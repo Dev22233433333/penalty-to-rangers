@@ -348,10 +348,23 @@ h1 {
   function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
   // ---------- Sound ----------
+  // Browsers only allow sound once the player has tapped, so the context is
+  // created and unlocked inside the first tap, then reused.
   let ac;
+  try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch {} // iPhone: play even with the silent switch on
+  function unlock() {
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      if (ac.state !== "running") ac.resume();
+      const b = ac.createBufferSource(); b.buffer = ac.createBuffer(1, 1, 22050);
+      b.connect(ac.destination); b.start(0);
+    } catch {}
+  }
+  ["pointerdown", "touchend", "keydown"].forEach(ev => document.addEventListener(ev, unlock, { passive: true }));
   function audio() {
-    if (!sound) return null;
-    try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === "suspended") ac.resume(); return ac; } catch { return null; }
+    if (!sound || !ac) return null;
+    if (ac.state !== "running") ac.resume(); // sounds queue up and play as soon as it resumes
+    return ac;
   }
   function whistle(len = 0.9) {
     const a = audio(); if (!a) return;
@@ -375,10 +388,10 @@ h1 {
     for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
     const src = a.createBufferSource(); src.buffer = buf;
     const f = a.createBiquadFilter(); f.type = kind === "cheer" ? "bandpass" : "lowpass";
-    f.frequency.value = kind === "cheer" ? 1100 : 380; f.Q.value = 0.7;
+    f.frequency.value = kind === "cheer" ? 1100 : 650; f.Q.value = 0.7; // phone speakers lose anything much lower
     const g = a.createGain();
     g.gain.setValueAtTime(0, now);
-    g.gain.linearRampToValueAtTime(kind === "cheer" ? 0.35 : 0.45, now + 0.25);
+    g.gain.linearRampToValueAtTime(kind === "cheer" ? 0.45 : 0.6, now + 0.25);
     g.gain.linearRampToValueAtTime(0, now + len);
     src.connect(f).connect(g).connect(a.destination);
     src.start(now);
