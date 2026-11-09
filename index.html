@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>*,*::before,*::after{box-sizing:border-box}html{height:100%}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Penalty to Rangers</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: one floodlit column. LED scoreboard on top, the incident on the pitch, then the referee's decision pad. Single night-match look by choice. */
+:root {
+  --night: #0a1120;
+  --stand: #111b30;
+  --panel: #142039;
+  --line: #24365c;
+  --grass: #1d6436;
+  --grass-alt: #22713d;
+  --chalk: #f2f5ec;
+  --muted: #94a3bf;
+  --blue: #1d4ed8;
+  --blue-hi: #3b6cf0;
+  --amber: #ffc22e;
+  --red: #d7332b;
+  --display: "Anton", Impact, "Arial Narrow", sans-serif;
+  --label: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "Barlow", system-ui, sans-serif;
+  color-scheme: dark;
+}
+html, body { background: var(--night); color: var(--chalk); }
+body {
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+  background:
+    radial-gradient(60% 40% at 15% 0%, rgba(255,255,255,.07), transparent 70%),
+    radial-gradient(60% 40% at 85% 0%, rgba(255,255,255,.07), transparent 70%),
+    var(--night);
+  min-height: 100%;
+}
+.wrap { max-width: 760px; margin: 0 auto; display: grid; gap: 14px; }
+
+/* Scoreboard */
+.board {
+  background: #05080f;
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  padding: 14px 16px 12px;
+  display: grid;
+  gap: 10px;
+}
+.board-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+h1 {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(30px, 7vw, 52px);
+  line-height: 1;
+  letter-spacing: .02em;
+  color: var(--amber);
+  text-shadow: 0 0 18px rgba(255,194,46,.35);
+  text-wrap: balance;
+}
+.sub { margin: 0; font-family: var(--label); font-weight: 500; font-size: 17px; color: var(--muted); letter-spacing: .02em; }
+.mute {
+  font-family: var(--label); font-weight: 600; font-size: 14px; letter-spacing: .08em; text-transform: uppercase;
+  background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 4px;
+  padding: 6px 10px; cursor: pointer;
+}
+.mute:hover { color: var(--chalk); border-color: var(--muted); }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.stat { background: #0b1222; border: 1px solid #1a2744; border-radius: 4px; padding: 6px 8px; min-width: 0; }
+.stat span { display: block; font-family: var(--label); font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat b { display: block; font-family: var(--display); font-weight: 400; font-size: 26px; line-height: 1.1; color: var(--amber); font-variant-numeric: tabular-nums; }
+@media (max-width: 520px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Pitch scene */
+.scene {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid var(--line);
+  background: var(--stand);
+}
+.scene svg { display: block; width: 100%; height: auto; }
+.scene.shake { animation: shake .4s; }
+@keyframes shake { 20% { transform: translateX(-6px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
+.tag {
+  position: absolute; top: 10px; left: 10px;
+  font-family: var(--label); font-weight: 700; font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
+  background: var(--red); color: #fff; padding: 3px 8px; border-radius: 3px;
+}
+.stamp {
+  position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;
+}
+.stamp div {
+  font-family: var(--display); font-size: clamp(30px, 8.5vw, 64px); line-height: .95; text-align: center;
+  color: var(--amber); background: rgba(5,8,15,.82); border: 4px solid var(--amber);
+  padding: 10px 18px 12px; transform: rotate(-6deg); letter-spacing: .02em;
+  box-shadow: 0 0 40px rgba(255,194,46,.35);
+}
+.stamp.show div { animation: stamp .45s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes stamp { from { transform: rotate(-6deg) scale(2.4); opacity: 0; } to { transform: rotate(-6deg) scale(1); opacity: 1; } }
+.monitor { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(5,8,15,.72); }
+.monitor div {
+  font-family: var(--label); font-weight: 700; font-size: clamp(18px, 4vw, 26px); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--chalk); background: #05080f; border: 2px solid var(--blue-hi); padding: 14px 20px; text-align: center; max-width: 80%;
+}
+.monitor small { display: block; font-size: .7em; color: var(--muted); letter-spacing: .14em; margin-bottom: 4px; }
+
+/* Incident report */
+.report { display: grid; gap: 4px; }
+.eyebrow { font-family: var(--label); font-weight: 600; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.caption { margin: 0; font-family: var(--label); font-weight: 600; font-size: clamp(20px, 4.4vw, 26px); line-height: 1.2; text-wrap: balance; }
+.msg { margin: 0; min-height: 1.45em; color: var(--amber); font-weight: 500; }
+
+/* Decision pad */
+.calls { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.call {
+  font-family: var(--label); font-weight: 700; font-size: 19px; letter-spacing: .03em; text-transform: uppercase;
+  background: var(--panel); color: var(--chalk); border: 2px solid var(--line); border-radius: 6px;
+  padding: 14px 12px; cursor: pointer; transition: background .15s, border-color .15s, transform .1s;
+}
+.call:hover:not(:disabled) { border-color: var(--muted); }
+.call:active:not(:disabled) { transform: translateY(1px); }
+.call:focus-visible, .mute:focus-visible, .next:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+.call.primary, .call.morphed { background: var(--blue); border-color: var(--blue-hi); }
+.call.primary { grid-column: 1 / -1; font-size: 24px; padding: 18px 12px; }
+.call.primary:hover:not(:disabled), .call.morphed:hover:not(:disabled) { background: var(--blue-hi); }
+.call.morphed { animation: morph .35s; }
+@keyframes morph { 0% { transform: scaleY(.2); } 100% { transform: scaleY(1); } }
+.call:disabled { opacity: .45; cursor: default; }
+.next {
+  justify-self: start;
+  font-family: var(--label); font-weight: 700; font-size: 18px; letter-spacing: .06em; text-transform: uppercase;
+  background: var(--amber); color: #1a1200; border: 0; border-radius: 6px; padding: 12px 20px; cursor: pointer;
+}
+.foot { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .scene.shake, .stamp.show div, .call.morphed { animation: none; }
+}
+</style>
+
+<div class="wrap">
+  <header class="board">
+    <div class="board-top">
+      <h1>Penalty to Rangers</h1>
+      <button class="mute" id="mute" type="button" aria-pressed="false">Sound on</button>
+    </div>
+    <p class="sub">You are the referee. A player in blue has gone down in the box. Make the right call.</p>
+    <div class="stats" aria-live="polite">
+      <div class="stat"><span>Incident</span><b id="s-round">1</b></div>
+      <div class="stat"><span>Penalties given</span><b id="s-given">0</b></div>
+      <div class="stat"><span>Calls corrected</span><b id="s-fixed">0</b></div>
+      <div class="stat"><span>Accuracy</span><b>100%</b></div>
+    </div>
+  </header>
+
+  <div class="scene" id="scene">
+    <svg id="pitch" viewBox="0 0 480 270" role="img" aria-label="Replay of the incident in the penalty box"></svg>
+    <div class="tag" id="tag">Live</div>
+    <div class="stamp" id="stamp" hidden><div>Penalty<br>to Rangers</div></div>
+    <div class="monitor" id="monitor" hidden><div><small id="mon-small">VAR check</small><span id="mon-text">Checking…</span></div></div>
+  </div>
+
+  <section class="report">
+    <span class="eyebrow">Incident report</span>
+    <p class="caption" id="caption">Watch the replay…</p>
+    <p class="msg" id="msg" aria-live="polite"></p>
+  </section>
+
+  <div class="calls" id="calls"></div>
+  <button class="next" id="next" type="button" hidden>Next incident</button>
+  <p class="foot">Every decision in this game is reviewed. Every review reaches the same conclusion.</p>
+</div>
+
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.getElementById("pitch");
+  const GROUND = 238, FALL_X = 300;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const $ = id => document.getElementById(id);
+  const el = (tag, attrs = {}, parent = svg) => {
+    const n = document.createElementNS(NS, tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    parent.appendChild(n);
+    return n;
+  };
+
+  // ---------- Stadium ----------
+  el("rect", { x: 0, y: 0, width: 480, height: 122, fill: "#0e1830" });
+  const crowd = [];
+  for (let row = 0; row < 9; row++) {
+    for (let i = 0; i < 46; i++) {
+      const x = 6 + i * 10.3 + (row % 2) * 5;
+      const y = 12 + row * 12;
+      const away = x > 405;
+      if (away && Math.random() < 0.7) continue; // the away end is quiet
+      const r = Math.random();
+      const fill = away ? "#3b4560" : r < 0.62 ? "#2457e0" : r < 0.82 ? "#e9edf5" : "#cf3a32";
+      crowd.push({ n: el("circle", { cx: x, cy: y, r: 3.6, fill }), away, seed: Math.random() * 6.28 });
+    }
+  }
+  el("rect", { x: 0, y: 120, width: 480, height: 18, fill: "#05080f" });
+  const ad = el("text", { x: 0, y: 133, fill: "#ffc22e", "font-family": "Barlow Condensed, Arial Narrow, sans-serif", "font-weight": 700, "font-size": 12, "letter-spacing": 2 });
+  ad.textContent = "PENALTY TO RANGERS • PENALTY TO RANGERS • PENALTY TO RANGERS • PENALTY TO RANGERS • PENALTY TO RANGERS • PENALTY TO RANGERS • ";
+  for (let i = 0; i < 12; i++) el("rect", { x: i * 40, y: 138, width: 40, height: 132, fill: i % 2 ? "#22713d" : "#1d6436" });
+  // Box edge, penalty spot and goal
+  el("line", { x1: 238, y1: 270, x2: 272, y2: 150, stroke: "rgba(242,245,236,.75)", "stroke-width": 2.5 });
+  el("ellipse", { cx: 385, cy: 246, rx: 5, ry: 2, fill: "rgba(242,245,236,.85)" });
+  const net = el("g", { stroke: "rgba(242,245,236,.35)", "stroke-width": 1 });
+  for (let x = 452; x <= 480; x += 7) el("line", { x1: x, y1: 176, x2: x, y2: GROUND }, net);
+  for (let y = 176; y <= GROUND; y += 8) el("line", { x1: 450, y1: y, x2: 480, y2: y }, net);
+  el("line", { x1: 450, y1: 174, x2: 450, y2: GROUND, stroke: "#f2f5ec", "stroke-width": 4 });
+  el("line", { x1: 448, y1: 174, x2: 480, y2: 174, stroke: "#f2f5ec", "stroke-width": 4 });
+
+  // Weather and wildlife layer
+  const fx = el("g", {});
+
+  // ---------- Players ----------
+  function makePlayer(shirt, shorts, socks, num) {
+    const g = el("g", {});
+    const legA = el("line", { stroke: socks, "stroke-width": 5, "stroke-linecap": "round" }, g);
+    const legB = el("line", { stroke: socks, "stroke-width": 5, "stroke-linecap": "round" }, g);
+    el("rect", { x: -7.5, y: -33, width: 15, height: 9, rx: 2, fill: shorts }, g);
+    el("rect", { x: -8, y: -54, width: 16, height: 23, rx: 4, fill: shirt }, g);
+    const t = el("text", { x: 0, y: -38, "text-anchor": "middle", fill: "#fff", "font-family": "Anton, Impact, sans-serif", "font-size": 10 }, g);
+    t.textContent = num;
+    const armA = el("line", { stroke: "#e8b996", "stroke-width": 4, "stroke-linecap": "round" }, g);
+    const armB = el("line", { stroke: "#e8b996", "stroke-width": 4, "stroke-linecap": "round" }, g);
+    el("circle", { cx: 0, cy: -62, r: 7.5, fill: "#e8b996" }, g);
+    return { g, legA, legB, armA, armB, shirtEls: g.querySelectorAll("rect") };
+  }
+  function pose(p, { x, y = 0, rot = 0, phase = 0, run = 0, flip = false, handsUp = false, hidden = false }) {
+    p.g.style.display = hidden ? "none" : "";
+    p.g.setAttribute("transform", `translate(${x} ${GROUND + y}) scale(${flip ? -1 : 1} 1) rotate(${rot})`);
+    const a = Math.sin(phase) * 0.75 * run;
+    setLine(p.legA, 0, -26, Math.sin(a) * 26, -26 + Math.cos(a) * 26);
+    setLine(p.legB, 0, -26, Math.sin(-a) * 26, -26 + Math.cos(-a) * 26);
+    if (handsUp) {
+      setLine(p.armA, -5, -50, -10, -76);
+      setLine(p.armB, 5, -50, 10, -76);
+    } else {
+      const b = -Math.sin(phase) * 0.9 * run;
+      setLine(p.armA, 0, -48, Math.sin(b) * 18, -48 + Math.cos(b) * 18);
+      setLine(p.armB, 0, -48, Math.sin(-b) * 18, -48 + Math.cos(-b) * 18);
+    }
+  }
+  function setLine(l, x1, y1, x2, y2) {
+    l.setAttribute("x1", x1); l.setAttribute("y1", y1); l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+  }
+
+  const defender = makePlayer("#c62f28", "#f2f5ec", "#c62f28", "5");
+  const attacker = makePlayer("#1d4ed8", "#f2f5ec", "#111", "9");
+  const ball = el("circle", { r: 5, fill: "#fff", stroke: "#222", "stroke-width": 1 });
+
+  // Speech bubbles
+  function makeBubble() {
+    const g = el("g", { style: "display:none" });
+    const r = el("rect", { rx: 6, fill: "#f2f5ec", height: 20 }, g);
+    const t = el("text", { y: 14, "text-anchor": "middle", fill: "#0a1120", "font-family": "Barlow Condensed, Arial Narrow, sans-serif", "font-weight": 700, "font-size": 13 }, g);
+    return { g, r, t, show(text, x, y) {
+      t.textContent = text;
+      const w = text.length * 7 + 14;
+      r.setAttribute("x", -w / 2); r.setAttribute("width", w); t.setAttribute("x", 0);
+      g.setAttribute("transform", `translate(${x} ${y})`); g.style.display = "";
+    }, hide() { g.style.display = "none"; } };
+  }
+  const defBubble = makeBubble(), attBubble = makeBubble();
+
+  // ---------- Incidents ----------
+  // defX: where the defender stands (null = slides in for genuine contact, -1 = nowhere to be seen)
+  const INCIDENTS = [
+    { cap: "The defender clips his heel. Genuine contact, for once.", defX: null },
+    { cap: "The nearest defender is six yards away. Our man goes down clutching his face.", defX: 400 },
+    { cap: "Nobody within 20 yards. A light breeze off the Copland Road stand.", defX: -1, wind: true },
+    { cap: "The defender sneezed.", defX: 395, bubble: "ACHOO!" },
+    { cap: "A pigeon brushed his shoulder on the way past.", defX: 430, bird: true },
+    { cap: "The defender looked at him. Quite hard, to be fair.", defX: 385, bubble: "Oi." },
+    { cap: "He tripped over the penalty spot.", defX: 432 },
+    { cap: "The defender apologised before anything happened.", defX: 380, bubble: "Sorry!" },
+    { cap: "The defender was in the dugout at the time.", defX: -1 },
+    { cap: "This is the warm-up. Kick-off is in 40 minutes.", defX: -1 },
+    { cap: "Contact from the defender's shadow.", defX: 392 },
+    { cap: "The defender is one of his own teammates.", defX: 390, sameTeam: true },
+    { cap: "The defender has both hands in the air and is standing very still.", defX: 400, handsUp: true },
+    { cap: "The final whistle went ten minutes ago. He has come back out to do this.", defX: -1 },
+    { cap: "The defender is still in the tunnel doing his laces.", defX: -1 },
+  ];
+
+  const CALLS = [
+    { id: "pen", label: "Penalty to Rangers", primary: true },
+    { id: "play", label: "Play on" },
+    { id: "dive", label: "Book him for diving" },
+    { id: "fk", label: "Free kick to the defence" },
+    { id: "var", label: "Go to the pitchside monitor" },
+  ];
+  const PUSHBACK = {
+    play: [
+      "Your earpiece crackles: \"You sure about that, ref?\"",
+      "50,000 people disagree. Have another think.",
+      "The fourth official is slowly shaking his head.",
+      "You try to wave play on. Your arm points at the spot instead.",
+    ],
+    dive: [
+      "Booking a Rangers player for diving? In this stadium? Bold.",
+      "The yellow card won't come out of your pocket.",
+      "You reach for the yellow. It's a penalty spot now.",
+      "Your notebook only has one page and it says \"Penalty to Rangers\".",
+    ],
+    fk: [
+      "A free kick to the defence? Even the defence don't believe it.",
+      "The linesman pretends he didn't hear that.",
+      "The defending captain asks you to reconsider. In their favour.",
+      "Your whistle makes a noise that sounds a lot like \"penalty\".",
+    ],
+  };
+  const VAR_LINES = [
+    "Every angle shows a penalty to Rangers",
+    "The monitor only has one replay. It's a penalty",
+    "Lines drawn. Lines confirm: penalty to Rangers",
+    "Stockley Park agrees: penalty to Rangers",
+  ];
+  const VERDICTS = [
+    "Assessor's mark: 10 out of 10. Lovely decision.",
+    "Pundit: \"I've seen them given.\"",
+    "Pundit: \"Soft, but you'll get those here.\"",
+    "Pundit: \"Never in doubt, that.\"",
+    "The defender has been booked for being nearby.",
+    "The linesman gives you a discreet thumbs up.",
+    "You'll be getting the big games next season.",
+    "Replays are inconclusive, which means it's a penalty.",
+  ];
+
+  // ---------- State ----------
+  let state = { round: 1, given: 0, fixed: 0, order: shuffle([...INCIDENTS.keys()]), pos: 0 };
+  let incident, t0, phase, wrongTaps, sound = true, pushIdx = { play: 0, dive: 0, fk: 0 };
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+  // ---------- Sound ----------
+  let ac;
+  function audio() {
+    if (!sound) return null;
+    try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === "suspended") ac.resume(); return ac; } catch { return null; }
+  }
+  function whistle(len = 0.9) {
+    const a = audio(); if (!a) return;
+    const now = a.currentTime;
+    const o = a.createOscillator(), lfo = a.createOscillator(), lg = a.createGain(), g = a.createGain();
+    o.type = "triangle"; o.frequency.value = 2850;
+    lfo.frequency.value = 32; lg.gain.value = 160;
+    lfo.connect(lg).connect(o.frequency);
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.16, now + 0.03);
+    g.gain.setValueAtTime(0.16, now + len - 0.08);
+    g.gain.linearRampToValueAtTime(0, now + len);
+    o.connect(g).connect(a.destination);
+    o.start(now); lfo.start(now); o.stop(now + len); lfo.stop(now + len);
+  }
+  function crowdNoise(kind) {
+    const a = audio(); if (!a) return;
+    const now = a.currentTime, len = kind === "cheer" ? 1.8 : 1.1;
+    const buf = a.createBuffer(1, a.sampleRate * len, a.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const src = a.createBufferSource(); src.buffer = buf;
+    const f = a.createBiquadFilter(); f.type = kind === "cheer" ? "bandpass" : "lowpass";
+    f.frequency.value = kind === "cheer" ? 1100 : 380; f.Q.value = 0.7;
+    const g = a.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(kind === "cheer" ? 0.35 : 0.45, now + 0.25);
+    g.gain.linearRampToValueAtTime(0, now + len);
+    src.connect(f).connect(g).connect(a.destination);
+    src.start(now);
+  }
+  $("mute").addEventListener("click", e => {
+    sound = !sound;
+    e.currentTarget.textContent = sound ? "Sound on" : "Sound off";
+    e.currentTarget.setAttribute("aria-pressed", String(!sound));
+  });
+
+  // ---------- Round flow ----------
+  function startRound() {
+    incident = INCIDENTS[state.order[state.pos % state.order.length]];
+    t0 = performance.now() - (reduce ? 4000 : 0);
+    phase = "watch";
+    wrongTaps = 0;
+    $("caption").textContent = "Watch the replay…";
+    $("msg").textContent = "";
+    $("tag").textContent = "Live";
+    $("stamp").hidden = true; $("stamp").classList.remove("show");
+    $("monitor").hidden = true;
+    $("next").hidden = true;
+    defBubble.hide(); attBubble.hide();
+    defender.shirtEls[1].setAttribute("fill", incident.sameTeam ? "#1d4ed8" : "#c62f28");
+    defender.legA.setAttribute("stroke", incident.sameTeam ? "#111" : "#c62f28");
+    defender.legB.setAttribute("stroke", incident.sameTeam ? "#111" : "#c62f28");
+    renderCalls(true);
+    updateStats();
+  }
+  function renderCalls(disabled) {
+    const box = $("calls");
+    box.innerHTML = "";
+    for (const c of CALLS) {
+      const b = document.createElement("button");
+      b.type = "button"; b.id = "call-" + c.id;
+      b.className = "call" + (c.primary ? " primary" : "");
+      b.textContent = c.label;
+      b.disabled = disabled;
+      b.dataset.id = c.id;
+      b.addEventListener("click", () => decide(b));
+      box.appendChild(b);
+    }
+  }
+  function setCallsDisabled(v) { document.querySelectorAll(".call").forEach(b => (b.disabled = v)); }
+
+  function decide(btn) {
+    if (phase !== "decide") return;
+    const id = btn.dataset.id;
+    if (id === "pen" || btn.classList.contains("morphed")) return award();
+    if (id === "var") return goToMonitor();
+    // Wrong call: the stadium corrects you, and the button sees sense
+    state.fixed++; wrongTaps++;
+    const lines = PUSHBACK[id];
+    $("msg").textContent = lines[pushIdx[id]++ % lines.length];
+    btn.textContent = "Penalty to Rangers";
+    btn.classList.add("morphed");
+    crowdNoise("boo");
+    const sc = $("scene"); sc.classList.remove("shake"); void sc.offsetWidth; sc.classList.add("shake");
+    if (wrongTaps === 3) $("msg").textContent += " All your options now agree.";
+    updateStats();
+  }
+  function goToMonitor() {
+    phase = "monitor";
+    setCallsDisabled(true);
+    $("tag").textContent = "VAR";
+    $("monitor").hidden = false;
+    $("mon-small").textContent = "VAR check";
+    $("mon-text").textContent = "Checking possible penalty…";
+    $("msg").textContent = "You jog over to the monitor.";
+    setTimeout(() => {
+      $("mon-small").textContent = "Check complete";
+      $("mon-text").textContent = pick(VAR_LINES);
+    }, 1400);
+    setTimeout(() => { $("monitor").hidden = true; award(true); }, 2800);
+  }
+  function award(viaVar) {
+    phase = "awarded";
+    state.given++;
+    setCallsDisabled(true);
+    $("tag").textContent = "Decision";
+    const s = $("stamp"); s.hidden = false; s.classList.remove("show"); void s.offsetWidth; s.classList.add("show");
+    $("msg").textContent = (viaVar ? "Overturned on review. " : "") + pick(VERDICTS);
+    whistle(1.0);
+    setTimeout(() => crowdNoise("cheer"), 250);
+    cheerUntil = performance.now() + 2600;
+    $("next").hidden = false;
+    $("next").focus({ preventScroll: true });
+    updateStats();
+  }
+  $("next").addEventListener("click", () => {
+    state.round++; state.pos++;
+    if (state.pos % state.order.length === 0) state.order = shuffle(state.order);
+    startRound();
+  });
+  function updateStats() {
+    $("s-round").textContent = state.round;
+    $("s-given").textContent = state.given;
+    $("s-fixed").textContent = state.fixed;
+  }
+
+  // ---------- Animation ----------
+  let cheerUntil = 0;
+  const ease = x => (x < 0 ? 0 : x > 1 ? 1 : 1 - Math.pow(1 - x, 2));
+  const windLines = [];
+  function frame(now) {
+    const t = (now - t0) / 1000;
+    const RUN_END = 1.5, FALL_END = 1.8;
+
+    // Ad board scroll
+    ad.setAttribute("transform", `translate(${-((now / 40) % 240)} 0)`);
+
+    // Crowd: idle sway, bouncing when a penalty is given
+    const cheering = now < cheerUntil;
+    for (const c of crowd) {
+      const dy = cheering && !c.away ? -Math.abs(Math.sin(now / 90 + c.seed)) * 4 : Math.sin(now / 700 + c.seed) * 0.6;
+      c.n.setAttribute("transform", `translate(0 ${dy.toFixed(2)})`);
+    }
+
+    // Attacker
+    let ax, rot = 0, y = 0, run = 1, ph = t * 14;
+    if (t < RUN_END) {
+      ax = 30 + (FALL_X - 30) * (t / RUN_END);
+    } else if (t < FALL_END) {
+      const k = ease((t - RUN_END) / (FALL_END - RUN_END));
+      ax = FALL_X + k * 18; rot = k * 90; y = -k * 8; run = 0.4;
+    } else {
+      const w = t - FALL_END;
+      ax = FALL_X + 18 + Math.min(w, 0.6) * 10;
+      rot = 90 + Math.sin(w * 18) * 5; y = -8; run = 0.6; ph = w * 22;
+    }
+    pose(attacker, { x: ax, y, rot, phase: ph, run });
+
+    // Ball runs on into the net
+    const bx = t < RUN_END ? ax + 14 : Math.min(FALL_X + 14 + (t - RUN_END) * 120, 470);
+    ball.setAttribute("cx", bx); ball.setAttribute("cy", GROUND - 5);
+
+    // Defender
+    const d = incident.defX;
+    if (d === -1) {
+      pose(defender, { x: 0, hidden: true });
+    } else if (d === null) {
+      // Genuine slide tackle
+      const k = ease(Math.min(t / RUN_END, 1));
+      const dx = 430 - k * 105;
+      const sliding = t > 1.0;
+      pose(defender, { x: dx, y: sliding ? -6 : 0, rot: sliding ? -70 : 0, flip: true, phase: t * 14, run: sliding ? 0.2 : 1 });
+    } else {
+      pose(defender, { x: d, flip: true, handsUp: !!incident.handsUp, phase: 0, run: 0 });
+    }
+
+    // Extras
+    if (incident.bubble && t > 1.1) defBubble.show(incident.bubble, d, GROUND - 92);
+    if (t > FALL_END + 0.1) attBubble.show("ARGH!", ax + 50, GROUND - 46);
+    drawFx(t, ax);
+
+    if (phase === "watch" && t > FALL_END + 0.3) {
+      phase = "decide";
+      $("tag").textContent = "Replay";
+      $("caption").textContent = incident.cap;
+      setCallsDisabled(false);
+      whistle(0.35);
+    }
+    requestAnimationFrame(frame);
+  }
+  function drawFx(t, ax) {
+    fx.innerHTML = "";
+    if (incident.wind && t > 0.5 && t < 2.4) {
+      for (let i = 0; i < 6; i++) {
+        const x = ((t * 340 + i * 90) % 560) - 60, yy = 160 + i * 13;
+        el("path", { d: `M${x} ${yy} q 20 -6 40 0 t 40 0`, stroke: "rgba(242,245,236,.55)", "stroke-width": 2, fill: "none", "stroke-linecap": "round" }, fx);
+      }
+    }
+    if (incident.bird && t < 3.2) {
+      const k = t / 1.5;
+      const bx = k <= 1 ? 40 + k * (FALL_X - 30) : FALL_X + 10 + (k - 1) * 260;
+      const by = k <= 1 ? 150 + k * 32 : 182 - (k - 1) * 140;
+      const flap = Math.sin(t * 30) * 5;
+      el("path", { d: `M${bx - 9} ${by - flap} Q ${bx - 4} ${by - 4} ${bx} ${by} Q ${bx + 4} ${by - 4} ${bx + 9} ${by - flap}`, stroke: "#c9ced8", "stroke-width": 2.5, fill: "none", "stroke-linecap": "round" }, fx);
+      el("circle", { cx: bx, cy: by + 1, r: 2.5, fill: "#9aa1ad" }, fx);
+    }
+    if (incident.defX && incident.defX > 0 && /shadow/.test(incident.cap)) {
+      el("ellipse", { cx: (incident.defX + ax) / 2 + 10, cy: GROUND + 2, rx: Math.max(12, (incident.defX - ax) / 2 + 10), ry: 4, fill: "rgba(0,0,0,.35)" }, fx);
+    }
+  }
+
+  // ---------- Boot ----------
+  function start(saved) {
+    if (saved && typeof saved.given === "number") state = { ...state, ...saved };
+    startRound();
+    requestAnimationFrame(frame);
+  }
+  window.claude?.hot?.snapshot?.(() => ({ round: state.round, given: state.given, fixed: state.fixed, order: state.order, pos: state.pos }));
+  window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+})();
+</script>
+
+</body>
+</html>
